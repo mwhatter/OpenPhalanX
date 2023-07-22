@@ -1,0 +1,72 @@
+API and Browser Extensions Reference
+
+https://support.virustotal.com/hc/en-us/articles/115002100149-API
+https://support.virustotal.com/hc/en-us/articles/4413290242705-VT4Browsers-4-0
+Reccommended selections for Scan and Upload Settings
+	Scan downloads with VirusTotal
+		Don't scan documents 9docx, pdf, etc.) 
+		Show 'Send to VirusTotal' prompt when downloading files
+		Pause downloads when sending to VirusTotal
+These settings will pause submit downloading executables to be scanned by VirusTotal. You will be prompted for actions depending on scan outcome.
+Reccommended selections for VT Augment Settings
+	IoC Highlighting
+		Highlight All sites
+This will give you a clickable VT icon next to indicators on the page you are viewing wihtout automatically consuming api credits. Clicking this icon consume api lookup quota but it brings resolve VT intelligence directly into your view wihtout leaving the page.
+
+
+https://ui.threatstream.com/downloads - for the web browser addon of your preference
+https://ui.threatstream.com/settings?action=profile - to retrieve your api key
+
+
+https://pulsedive.com/api/ - to retrieve api key
+https://pulsedive.com/about/addon - for the web browser addon of your preference
+
+lines in DOL_ACEv2.ps1 to modify
+Everything you need to replace is placeheld with "redacted" - 12 total occurances
+Line 2212, in button BoxEmAll
+	    $apiKey = "redacted"
+		insert anomali useremail:key####
+
+Line 2262, in button Sandbox URL
+        $response = Invoke-RestMethod -Uri "https://api.threatstream.com/api/v1/submit/new/" -Headers @{"Authorization" = "apikey redacted"} -Method Post -Body @{ "use_vmray_sandbox" = "true"; "vmray_max_jobs" = "3"; "report_radio-classification" = "private"; "report_radio-url" = "$TextBoxUrlt"; "report_radio-notes" = "$note" } -ContentType "application/x-www-form-urlencoded"        $script:anomaliId = $response.reports.AUTOMATIC.id
+		insert anomali useremail:key####
+		
+Line 2275, in button Sandbox URL
+		$headers.Add("x-apikey", "redacted")
+		insert VirusTotal apikey#####
+		
+Line 2290, in button Sandbox URL
+        $response = Invoke-RestMethod -Uri 'https://pulsedive.com/api/analyze.php' -Method POST -Body "value=$TextBoxUrlt&probe=1&pretty=1&key=redacted" -ContentType 'application/x-www-form-urlencoded'
+		insert pulsdive apikey#####
+		
+Line 2310, in button Retrieve Report
+    $ResponseAnomali = Invoke-RestMethod -Uri "https://api.threatstream.com/api/v1/submit/search/?q=$script:note" -Headers @{"Authorization" = "apikey redacted"} -Method Get    $anomaliObjects = $ResponseAnomali.objects | Select-Object confidence, verdict, url, file, date_added, notes, sandbox_vendor, status
+	insert anomali useremail:key#### 
+	
+Line 2337, in button Retrieve Report
+    $ResponsePulsedive = Invoke-RestMethod -Uri "https://pulsedive.com/api/analyze.php?qid=$script:pulsediveQid&pretty=1&key=redacted" -Method GET 
+	insert pulsdive apikey#####
+	
+Line 2444, in button Retrieve Report
+    $headers.Add("x-apikey", "redacted")
+	insert VirusTotal apikey#####
+	
+Line 2707, in button Get Intel
+        $anomaliresponse = Invoke-RestMethod -Uri "https://api.threatstream.com/api/v2/intelligence/?value__contains=$indicator&limit=0" -Headers @{'Authorization' = 'apikey redacted'}         $selectedFields = $anomaliresponse.objects | ForEach-Object {
+		insert anomali useremail:key#### 
+		
+Line 2761, in button Get Intel
+        $pulseresponse = Invoke-RestMethod -Uri "https://pulsedive.com/api/explore.php?q=ioc%3D$indicator&limit=0&pretty=1&key=redacted"
+		insert pulsdive apikey#####
+		
+Line 2826, in button Get Intel
+    $headers.Add("x-apikey", "redacted")
+	insert VirusTotal apikey#####
+	
+Line 3668, in button Sandbox Local File
+    $apiKey = "redacted"
+	insert anomali useremail:key#### 
+	
+Line 3691, in button Retrieve Report
+    $Response = Invoke-RestMethod -Uri "https://api.threatstream.com/api/v1/submit/search/?q=$script:Note" -Headers @{"Authorization" = "redacted"} -Method Get 
+	insert anomali useremail:key####
