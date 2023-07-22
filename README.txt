@@ -16,21 +16,11 @@ Forensics On the Fly: this is the host data collector and automated windows even
 
 Defending Off the Land: this is the response interface to interact with hosts and intervene across your domain as necessary - MWH
 
-Bulk Up: this is an adaptaion of the response interface DOL, modified to aid in building target lists and actioning against multiple hosts - MWH
-
 Sysmon: "a Windows system service and device driver that, once installed on a system, remains resident across system reboots to monitor and log system activity to the Windows event log" - Mark Russinovich and Thomas Garnier
-
-AlphaFS: "a .NET library providing more complete Win32 file system functionality to the .NET platform than the standard System.IO classes." - Peter Palotas 
-
-APT-Hunter: a windows event log threat hunting tool made by the purple teamer, Ahmed Khlief
 
 DeepBlueCLI: "a PowerShell Module for Threat Hunting via Windows Event Logs" - Eric Conrad
 
 Hayabusa: "a Windows event log fast forensics timeline generator and threat hunting tool" -  Yamato Security group, Japan
-
-Chocolatey: "a machine-level, command-line package manager and installer for software on Microsoft Windows" - Rob Reynolds
-
-Git: "a distributed version control system that tracks changes in any set of computer files, usually used for coordinating work among programmers collaboratively developing source code during software development" - Linus Torvalds, Junio C Hamano
 
 Python: "a programming language that lets you work quickly and integrate systems more effectively" - Guido van Rossum
 
@@ -68,30 +58,21 @@ Setup
     			"\OpenPhalanx\Logs\Audit",
     			"\OpenPhalanx\Rules",
     			"\OpenPhalanx\Tools",
-    			"\OpenPhalanx\Tools\APT-Hunter",
     			"\OpenPhalanx\Tools\DeepBlueCLI",
     			"\OpenPhalanx\Tools\EZTools",
     			"\OpenPhalanx\Tools\Hayabusa",
     			"\OpenPhalanx\Tools\Sysmon",
-    			"\OpenPhalanx\Tools\VxAPI"
 		Downloads tools and requirements
-			Chocolatey
-			Git
 			Python
 			ImportExcel
-			Forensics_On_the_Fly.ps1
 			Defending_Off_the_Land.ps1
-			Bulk_Up.ps1
-			AlphaFS.dll
 			LICENSE
 			README.txt
 			regexes.txt
 			safelists.txt
-			APT-Hunter
 			DeepBlueCLI
 			Hayabusa
 			Sysmon
-			VxAPI
 			EZTools
 		Updates Hayabusa rules
 			"\OpenPhalanx\Rules"
@@ -107,14 +88,13 @@ Usage
 		The RapidTriage output is a collection of worksheets in an xlsx workbook per host. Use your prefered tool 
 			for viewing these file types. The browser histories collected are easily viewed by any sqlite viewer
 			and vs code is a tool I consider essential for it's diverse capabilities.
-		Three threat hunting tools generate various outputs when the WinEventalyzer is deployed.
-			APT-Hunter makes a timeline and a good summary of events of interest
+		Threat hunting tools generate various outputs when the WinEventalyzer is deployed.
 			DeepBlueCLI will generate alerts or threat hunting leads of interest to investigate furhter
 			Hayabusa Timeline, various summaries, and metrics
 		The USN Journal is a treasure trove of information about file changes. It's also not well formatted 
 			due to how it is read from the remote host using the native file system utility tool. 
 			It's the slowest collection of the 3. 
-	Respond with Defending Off the Land 1:1
+	Respond with Defending Off the Land
  		Shutting down or restarting a remote computer
 		Getting basic information about a remote computer's system and users
  		Viewing and killing processes on a remote computer
@@ -123,13 +103,6 @@ Usage
 		Installing and running Sysmon on a remote computer with Olaf Hartong's default configuration
 		Isolating a remote computer from the network by modifying its firewall rules
 		Submitting URLs or files to Hybrid Analysis for malware analysis
-	Respond with Bulk Up 1:many
-		Building target lists by Domain, OU, or Group
-		Shutting down or restarting a group of remote computers
-		Copying, deleting, placing and running files on a group of remote computers
-		Executing single line commands on a group of remote computers
-		Installing and running Sysmon on a group of remote computers with Olaf Hartong's default configuration
-		Isolating a group of remote computers from the network by modifying their firewall rules
 
 
 *********Resources*********
