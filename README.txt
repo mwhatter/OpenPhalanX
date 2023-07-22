@@ -12,8 +12,6 @@ Warning! Using the hybrid analyis feature is only recomended for items you do no
 *********Definitions*********
 OpenPhalanx:  the framework for how we use the open source, or free and built on open source, tools within this colleciton - MWH
 
-Forensics On the Fly: this is the host data collector and automated windows event log threat hunting deployment interface - MWH
-
 Defending Off the Land: this is the response interface to interact with hosts and intervene across your domain as necessary - MWH
 
 Sysmon: "a Windows system service and device driver that, once installed on a system, remains resident across system reboots to monitor and log system activity to the Windows event log" - Mark Russinovich and Thomas Garnier
