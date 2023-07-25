@@ -148,7 +148,7 @@ Contributions are always welcome! If you're interested in enhancing OpenPhalanX,
 
 ## Contact
 
-For any questions, feedback, or suggestions, please reach out to us at your-email@example.com.
+For any questions, feedback, or suggestions, please reach out to mwhatter@openphalanx.com.
 
 ## License
 
