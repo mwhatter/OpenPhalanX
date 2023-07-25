@@ -9,10 +9,6 @@ DeepBlueCLI: "a PowerShell Module for Threat Hunting via Windows Event Logs" - E
 
 Hayabusa: "a Windows event log fast forensics timeline generator and threat hunting tool" -  Yamato Security group, Japan
 
-Python: "a programming language that lets you work quickly and integrate systems more effectively" - Guido van Rossum
-
-ImportExcel: "PowerShell module to import/export Excel spreadsheets, without Excel" - Douglas Finke
-
 VS Code: "a source-code editor made by Microsoft with the Electron Framework, for Windows, Linux and macOS" - Microsoft
 
 EZTools: Eric Zimmerman's collection of forensic tools
