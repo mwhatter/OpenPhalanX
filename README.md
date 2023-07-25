@@ -45,7 +45,7 @@ To install OpenPhalanX on a Windows host, you will need to execute a PowerShell 
 
 ## API Keys Configuration
 
-OpenPhalanX utilizes several APIs to facilitate its operations, each of which require API keys. These keys should be added to the `API_Keys&Extensions.txt` file located in the OpenPhalanX directory. Ensure each key is entered correctly and follows the format outlined in `API_Keys&Extensions.txt`.
+OpenPhalanX utilizes several APIs to facilitate its operations, each of which require API keys. These keys should be added to the locations specified in the `API_Keys&Extensions.txt` file.
 
 ## Features
 
