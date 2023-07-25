@@ -1,8 +1,3 @@
-According to CISA, "Forensics is the process of using scientific knowledge for collecting,
-analyzing, and presenting evidence to the courts."
-
-TechTarget expounds upon the applications of forensics a bit furhter; "Businesses also use computer forensics to track information related to a system or network compromise, which can be used to identify and prosecute cyber attackers. Businesses can also use digital forensic experts and processes to help them with data recovery in the event of a system or network failure caused by a natural or other disaster."
-
 OpenPhalanx excels at interacting with remote hosts in a manner which does not require the installation of an agent or taking the host offline when interrogation and intervention occur. Neither OpenPhalanx nor Sysmon should be seen as adequate alternatives to a modern EDR. OpenPhalanx steps in where preparation or execution have failed. Some mechanisms in this framework are helpful for daily security operations activities while others are likley only useful in an emergency. It is far more effective to familiarize yoruself with the interfaces and workflows before you encounter an emergency than to attempt to figure it out when the need arises. 
 
 The windows event log threat hunting applications can trip AV and other endpoint security controls. DeepBlueCLI in perticular tends to trip alerts. You may only need to apply AV exceptions to the sripts and binaries that run these applicaitons. These exceptions only need to be aplied to the local workstation from which the tools are launched. 
