@@ -2,7 +2,8 @@ OpenPhalanx:  the framework for how we use the open source, or free and built on
 
 Defending Off the Land: this is the response interface to interact with hosts and intervene across your domain as necessary - MWH
 
-Sysmon: "a Windows system service and device driver that, once installed on a system, remains resident across system reboots to monitor and log system activity to the Windows event log" - Mark Russinovich and Thomas Garnier
+Sysmon: "a Windows system service and device driver that, once installed on a system, remains resident across system reboots to 
+monitor and log system activity to the Windows event log" - Mark Russinovich and Thomas Garnier
 
 DeepBlueCLI: "a PowerShell Module for Threat Hunting via Windows Event Logs" - Eric Conrad
 
@@ -16,7 +17,11 @@ VS Code: "a source-code editor made by Microsoft with the Electron Framework, fo
 
 EZTools: Eric Zimmerman's collection of forensic tools
 
-OpenPhalanx excels at interacting with remote hosts in a manner which does not require the installation of an agent or taking the host offline when interrogation and intervention occur. Neither OpenPhalanx nor Sysmon should be seen as adequate alternatives to a modern EDR. OpenPhalanx steps in where preparation or execution have failed. Some mechanisms in this framework are helpful for daily security operations activities while others are likley only useful in an emergency. It is far more effective to familiarize yoruself with the interfaces and workflows before you encounter an emergency than to attempt to figure it out when the need arises.
+OpenPhalanx excels at interacting with remote hosts in a manner which does not require the installation of an agent or taking the 
+host offline when interrogation and intervention occur. Neither OpenPhalanx nor Sysmon should be seen as adequate alternatives to 
+a modern EDR. OpenPhalanx steps in where preparation or execution have failed. Some mechanisms in this framework are helpful for 
+daily security operations activities while others are likley only useful in an emergency. It is far more effective to familiarize 
+yoruself with the interfaces and workflows before you encounter an emergency than to attempt to figure it out when the need arises.
 
 *********Workflows*********
 Setup 
