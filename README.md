@@ -1,4 +1,4 @@
-# OpenPhalanX: No one stand alone
+# OpenPhalanX: No one stands alone
 
 OpenPhalanX is a comprehensive toolkit designed to manage, monitor, and secure remote systems. Whether you're an IT professional seeking to automate system tasks, or a cybersecurity specialist handling incident response, OpenPhalanX offers an array of features to streamline your operations.
 
