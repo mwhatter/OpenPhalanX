@@ -1,10 +1,3 @@
-OpenPhalanx excels at interacting with remote hosts in a manner which does not require the installation of an agent or taking the host offline when interrogation and intervention occur. Neither OpenPhalanx nor Sysmon should be seen as adequate alternatives to a modern EDR. OpenPhalanx steps in where preparation or execution have failed. Some mechanisms in this framework are helpful for daily security operations activities while others are likley only useful in an emergency. It is far more effective to familiarize yoruself with the interfaces and workflows before you encounter an emergency than to attempt to figure it out when the need arises. 
-
-The windows event log threat hunting applications can trip AV and other endpoint security controls. DeepBlueCLI in perticular tends to trip alerts. You may only need to apply AV exceptions to the sripts and binaries that run these applicaitons. These exceptions only need to be aplied to the local workstation from which the tools are launched. 
-
-Warning! Using the hybrid analyis feature is only recomended for items you do not believe to contain any sensitive information. I have set as many privacy configurations as we can use to keep submissions private, however screenshots and snippets within the report could still potentially contain sensitive information. Use at your own risk and I recommend reviewing all of your submissions immediately once they are available so you can identify anything for which you need to submit a request to remove.
-
-*********Definitions*********
 OpenPhalanx:  the framework for how we use the open source, or free and built on open source, tools within this colleciton - MWH
 
 Defending Off the Land: this is the response interface to interact with hosts and intervene across your domain as necessary - MWH
@@ -23,25 +16,17 @@ VS Code: "a source-code editor made by Microsoft with the Electron Framework, fo
 
 EZTools: Eric Zimmerman's collection of forensic tools
 
+OpenPhalanx excels at interacting with remote hosts in a manner which does not require the installation of an agent or taking the host offline when interrogation and intervention occur. Neither OpenPhalanx nor Sysmon should be seen as adequate alternatives to a modern EDR. OpenPhalanx steps in where preparation or execution have failed. Some mechanisms in this framework are helpful for daily security operations activities while others are likley only useful in an emergency. It is far more effective to familiarize yoruself with the interfaces and workflows before you encounter an emergency than to attempt to figure it out when the need arises.
+
 *********Workflows*********
 Setup 
 	Interrctions required from user:
 		Download and install VS Code from https://code.visualstudio.com/download
 		Add SQLite viewer extension
-		If you would like to use the sandbox submission features then aquire an api key from HA
 		Execute setup script as admin from the desired root location of the workspace
    		If you do not have MS Excel, then you may want to grab an open source alternative like LibreOffice
         		https://www.libreoffice.org/download/download-libreoffice/
-		If you would like to use the Hybrid-Analysis integration follow these setup steps:
-			Copy the config_tpl.py and name it config.py.
-			The configuration file specifies a triplet of api key/secret and server:
-				api_key (should be compatible with API v2 - should contains at least 60 chars)
-				server - full url of the WebService instance e.g. https://www.hybrid-analysis.com
-				Please fill them with the appropriate data. You can generate a public (restricted) API key by 
-				following these instructions:	
-				https://www.hybrid-analysis.com/knowledge-base/issuing-self-signed-api-key
-				If you have the full version of Falcon Sandbox, create any kind of API key in the admin area: 
-				https://www.hybrid-analysis.com/apikeys
+		Acquire apikeys and add them per the instructions of API_Keys&Extensions.txt
 	Actions taken by setup script
 		Builds directory workspaces:
  			"\OpenPhalanx\CopiedFiles",
@@ -57,7 +42,6 @@ Setup
     			"\OpenPhalanx\Tools\Sysmon",
 		Downloads tools and requirements
 			Python
-			ImportExcel
 			Defending_Off_the_Land.ps1
 			LICENSE
 			README.txt
