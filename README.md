@@ -49,16 +49,9 @@ OpenPhalanX utilizes several APIs to facilitate its operations, each of which re
 
 ## Features
 
-OpenPhalanX offers an array of features designed to facilitate remote system management, monitoring, and securing. Below are some key features:
+OpenPhalanX offers an array of features designed to facilitate remote system management, monitoring, and securing. 
 
-- **View Processes**: Display the list of processes running on the remote computer.
-- **Copy All Process Binaries**: Copy all unique process binaries from the remote machine to your local host.
-- **Tractor Beam**: Assign firewall rules to isolate a compromised system.
-- **Hunt File**: Locate specified file on the remote system.
-- **Place File**: Place a specific file from your local host onto the remote system.
-- **Execute Oneliner**: Execute specified command on the remote system.
-
-For a comprehensive list of features, please refer to the [Features](#features) section.
+For a comprehensive list of features, please refer to the "?" button within Defending_Off_the_Land.ps1.
 
 ## Usage
 
