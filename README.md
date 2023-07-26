@@ -152,6 +152,11 @@ This project integrates or is inspired by a number of other projects and resourc
 
 Contributions are always welcome! If you're interested in enhancing OpenPhalanX, please see our [contributing guidelines](CONTRIBUTING.md).
 
+Special thanks to creators of other projects that help make OpenPhalanX what it is:
+- [Eric Zimmerman](https://github.com/sponsors/EricZimmerman)
+- [Yamato Security](https://github.com/Yamato-Security)
+- [Eric Conrad](https://www.ericconrad.com/)
+
 ## Contact
 
 For any questions, feedback, or suggestions, please reach out to mwhatter@openphalanx.com.
