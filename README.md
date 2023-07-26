@@ -47,11 +47,17 @@ To install OpenPhalanX on a Windows host, you will need to execute a PowerShell 
 
 OpenPhalanX utilizes several APIs to facilitate its operations, each of which require API keys. These keys should be added to the locations specified in the `API_Keys&Extensions.txt` file.
 
+This repository has a directory titled "Integrations" which contains additional file submission python helpers and button click code. I do not have an api key for all of these integrations and the code you select may not have been tested. 
+
+Comment out any api queries you want to exclude from the prompts for Get Intel and Sandbox URL/Retrieve Report. Add any api's you wish to query as needed(email mwhatter@openphalanx for assistance).
+
 ## Features
 
-OpenPhalanX offers an array of features designed to facilitate remote system management, monitoring, and securing. 
+OpenPhalanX offers an array of features designed to facilitate remote system management, monitoring, and security. 
 
 For a comprehensive list of features, please refer to the "?" button within Defending_Off_the_Land.ps1.
+
+For tooltips, hover over each button.
 
 ## Usage
 
