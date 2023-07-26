@@ -160,17 +160,29 @@ $comboBoxComputerName.AutoCompleteSource = 'ListItems'
 $form.Controls.Add($comboboxComputerName)
 
 function Get-AllComputers {
-    $domains = @('dc1@domain1.com', 'dc2@domain2.com', 'dc3@domain3.com')
+    # Get a list of all domain in the forest
+    $domains = (Get-ADForest).Domains
+
     # Use ForEach-Object -Parallel to process the domains in parallel
     $domaincomputers = $domains | ForEach-Object -Parallel {
-        Get-ADComputer -Filter {Enabled -eq "True"} -Server $_ | Select-Object -ExpandProperty Name
+        # For each domain, get a DC
+        $domainController = (Get-ADDomainController -DomainName $_ -Discover -Service PrimaryDC).HostName
+
+        # Check if $domainController is a collection and get the first hostname
+        if ($domainController -is [Microsoft.ActiveDirectory.Management.ADPropertyValueCollection]) {
+            $domainController = $domainController[0]
+        }
+
+        # Get enabled computers from the DC
+        Get-ADComputer -Filter {Enabled -eq $true} -Server $domainController | Select-Object -ExpandProperty Name
     } | Sort-Object
+
     return $domaincomputers
 }
 
 $buttonGetHostList = New-Object System.Windows.Forms.Button
 $buttonGetHostList.Text = 'Get Host List'
-$buttonGetHostList.Location = New-Object System.Drawing.Point(57, 50)
+$buttonGetHostList.Location = New-Object System.Drawing.Point(53, 50)
 $buttonGetHostList.Size = New-Object System.Drawing.Size(90, 23)
 $buttonGetHostList.Add_Click({
     $comboBoxComputerName.Items.Clear()
@@ -308,22 +320,24 @@ function CollectForensicTimeline {
 				Close-ExcelPackage $ExcelStartupCommand
 			}
 
-			$NetworkConnections = Get-CimInstance -ClassName Win32_NetworkConnection -CimSession $session | select-object -Property PSComputerName,CreationTime,State,LocalAddress,LocalPort,OwningProcess,RemoteAddress,RemotePort
-			if ($NetworkConnections) {
-				$colNetConnStart = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-				Write-Host "Collected Network Connections from $HostName at $colNetConnStart" -ForegroundColor Cyan 
-				Log_Message -logfile $logfile -Message "Collected Network Connections from $HostName"
+			$NetworkConnections = Invoke-Command -ComputerName $Hostname -ScriptBlock { Get-NetTCPConnection } -ErrorAction SilentlyContinue | select-object -Property CreationTime,State,LocalAddress,LocalPort,OwningProcess,RemoteAddress,RemotePort
+            if ($NetworkConnections) {
+                $colNetConnStart = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+                Write-Host "Collected Network Connections from $HostName at $colNetConnStart" -ForegroundColor Cyan 
+                Log_Message -logfile $logfile -Message "Collected Network Connections from $HostName"
                 $textboxResults.AppendText("Collected Network Connections from $HostName at $colNetConnStart `r`n")
-				$ExcelNetworkConnections = $NetworkConnections | Export-Excel -Path $ExcelFile -WorksheetName 'NetworkConnections' -AutoSize -AutoFilter -TableStyle Medium6 -Append -PassThru
-				Close-ExcelPackage $ExcelNetworkConnections
-			}
+                $ExcelNetworkConnections = $NetworkConnections | Export-Excel -Path $ExcelFile -WorksheetName 'NetworkConnections' -AutoSize -AutoFilter -TableStyle Medium6 -Append -PassThru
+                Close-ExcelPackage $ExcelNetworkConnections
+            }
+        }
+			catch {
+                Write-Host "An error occurred while collecting data from $HostName $($_.Exception.Message)" -ForegroundColor Red
+                Log_Message -logfile $logfile -Message "An error occurred while collecting data from $HostName $($_.Exception.Message)"
+                $textboxResults.AppendText("An error occurred while collecting data from $HostName $($_.Exception.Message) `r`n")
+            }            
+}
+}
 
-			}catch {
-				Write-Host "An error occurred while collecting data from $HostName" -ForegroundColor Red
-				Log_Message -logfile $logfile -Message "An error occurred while collecting data from $HostName"
-                $textboxResults.AppendText("An error occurred while collecting data from $HostName `r`n")
-			}
-}}
 
 function Get_PrefetchMetadata {
     param(
@@ -384,23 +398,65 @@ function Copy_USNJournal {
         [string]$Destination,
         [string]$DriveLetter
     )
-    
-    $LocalUSNJournalPath = Join-Path -Path ($Destination + '\' + $HostName) -ChildPath "UsnJrnl_$($HostName)-$DriveLetter.csv"
+    New-Item -ItemType Directory -Path ".\Logs\Reports\$computerName\USN_Journal" -Force | Out-Null
+    $LocalUSNJournalPath = Join-Path -Path ($Destination + '\' + "$HostName\USN_Journal") -ChildPath "UsnJrnl_$($HostName)-$DriveLetter.csv"
     $timestart = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    Write-Host "Starting USN Journal Extraction" $timestart -Foregroundcolor Cyan
-    $form.Hide()
+    Write-Host "Starting USN Journal Extraction at $timestart" -Foregroundcolor Cyan
+    $textboxResults.AppendText("Starting USN Journal Extraction at $timestart `r`n") | Out-Null
+
     try {
-        $output = Invoke-Command -ComputerName $HostName -ScriptBlock {
-            Write-Host "Executing fsutil usn readjournal on drive $using:DriveLetter`:" -Foregroundcolor Cyan
-            & "C:\Windows\System32\fsutil.exe" "usn" "readjournal" "$using:DriveLetter`:"
-        } | ConvertFrom-Csv
-        $output | Export-Csv -Path $LocalUSNJournalPath -NoTypeInformation
+        # Executing fsutil and processing its output
+        $scriptBlock = {
+            param($DriveLetter)
+            & "C:\Windows\System32\fsutil.exe" "usn" "readjournal" "$DriveLetter`:" | Out-String -Stream 
+        }
+                
+        $remoteOutput = Invoke-Command -ComputerName $HostName -ScriptBlock $scriptBlock -ArgumentList $DriveLetter
         $timeend = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-        Write-Host "USN Journal copied from $HostName at $Timeend" -ForegroundColor Green
+        Write-Host "Finished USN Journal Extraction from $DriveLetter at $timeend" -Foregroundcolor Cyan
+        Write-Host "Tableling the data" -Foregroundcolor Cyan
+
+        # Split the raw output into lines
+        if ($null -ne $remoteOutput) {
+            $lines = $remoteOutput -split "`r`n"
+        } else {
+            Write-Warning "No output from Invoke-Command."
+            return
+        }
+
+        # Find the start of the journal entries
+        $firstUsnLine = $lines | Where-Object { $_.StartsWith('Usn') } | Select-Object -First 1
+        if ($null -ne $firstUsnLine) {
+            $journalStartIndex = $lines.IndexOf($firstUsnLine)
+
+        # Get only the journal entries (ignore metadata)
+        $lines = $lines[$journalStartIndex..$lines.Count]
+
+        # Prepare data collection
+        $entry = @{}
+
+        # Exporting data to CSV
+        $lines | ForEach-Object {
+            if ($_ -eq '') {
+                if ($entry.Count -gt 0) {
+                    $entry.PSObject.Copy() # Emit the entry
+                    $entry.Clear()
+                }
+            } else {
+                $parts = $_ -split ':', 2
+                $entry[$parts[0].Trim()] = if ($parts.Length -gt 1) { $parts[1].Trim() } else { $null }
+            }
+        } | Export-Csv -Path $LocalUSNJournalPath -NoTypeInformation
+        } else {
+            Write-Warning "No lines starting with 'Usn' were found."
+        }
+
+        $timeend = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+        Write-Host "USN Journal from drive $DriveLetter on $HostName finished processing at $Timeend" -ForegroundColor Green
+        $textboxResults.AppendText("USN Journal from drive $DriveLetter on $HostName finished processing at $Timeend `r`n")
     } catch {
-        Write-Host "Error copying USN Journal from ${HostName} on drive ${DriveLetter}: $($_.Exception.Message)" -ForegroundColor Red
+        return "Error copying USN Journal from $HostName on drive $DriveLetter $($_.Exception.Message)"
     }
-    $form.Show()
 }
 
 function Get_RemoteDriveLetters {
@@ -737,10 +793,10 @@ $comboboxlocalFilePath.BackColor = [System.Drawing.Color]::Black
 $comboboxlocalFilePath.ForeColor = [System.Drawing.Color]::lightseagreen
 $comboboxlocalFilePath.DrawMode = [System.Windows.Forms.DrawMode]::OwnerDrawFixed
 $comboboxlocalFilePath.add_DrawItem({
-    param($sender, $e)
+    param($senderloc, $e)
 
     $e.DrawBackground()
-    $text = $sender.Items[$e.Index]
+    $text = $senderloc.Items[$e.Index]
 
     $textFormatFlags = [System.Windows.Forms.TextFormatFlags]::Right
     [System.Windows.Forms.TextRenderer]::DrawText($e.Graphics, $text, $e.Font, $e.Bounds, $e.ForeColor, $textFormatFlags)
@@ -1295,7 +1351,7 @@ $form.Controls.Add($buttonShutdown)
 $buttonCopyFile = New-Object System.Windows.Forms.Button
 $buttonCopyFile.Location = New-Object System.Drawing.Point(330, 180)
 $buttonCopyFile.Size = New-Object System.Drawing.Size(75, 40)
-$buttonCopyFile.Text = "Copy File"
+$buttonCopyFile.Text = "Copy"
 $buttonCopyFile.Add_Click({
     $computerName = if ($comboBoxComputerName.SelectedItem) {
         $comboBoxComputerName.SelectedItem.ToString()
@@ -1351,7 +1407,7 @@ $form.Controls.Add($buttonCopyFile)
 $buttonDeleteFile = New-Object System.Windows.Forms.Button
 $buttonDeleteFile.Location = New-Object System.Drawing.Point(480, 180)
 $buttonDeleteFile.Size = New-Object System.Drawing.Size(75, 40)
-$buttonDeleteFile.Text = "Delete File"
+$buttonDeleteFile.Text = "Delete"
 $buttonDeleteFile.Add_Click({
     $computerName = if ($comboBoxComputerName.SelectedItem) {
         $comboBoxComputerName.SelectedItem.ToString()
@@ -1363,19 +1419,19 @@ $buttonDeleteFile.Add_Click({
     if (![string]::IsNullOrEmpty($computerName) -and ![string]::IsNullOrEmpty($filePath)) {
         # Extract filename from path
         $filename = [System.IO.Path]::GetFileName($filePath)
-        # Convert drive letter path to UNC format
-        $driveLetter = $filePath.Substring(0, 1)
-        $uncPath = "\\$computerName\$driveLetter$" + $filePath.Substring(2)
         try {
-            Remove-Item $uncPath -ErrorAction SilentlyContinue
-            [System.Windows.Forms.MessageBox]::Show("File '$filename' deleted from remote host.", "Delete File Success", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
-            $textboxResults.AppendText("File '$filename' deleted from remote host.`r`n")
+            $result = [System.Windows.Forms.MessageBox]::Show("Do you want to delete '$filePath'?", "Delete File or Directory", [System.Windows.Forms.MessageBoxButtons]::YesNo, [System.Windows.Forms.MessageBoxIcon]::Question)
+            if ($result -eq "Yes") {
+                Invoke-Command -ComputerName $computerName -ScriptBlock { param($path) Remove-Item -Path $path -Recurse -Force -ErrorAction Stop } -ArgumentList $filePath
+                [System.Windows.Forms.MessageBox]::Show("'$filename' deleted from remote host.", "Delete Success", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+                $textboxResults.AppendText("'$filename' deleted from remote host.`r`n")
+            }
             $filedelete = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
             Write-Host "Deleted $filePath from $computerName at $filedelete" -ForegroundColor Cyan 
             Log_Message -logfile $logfile -Message "Deleted $filePath from $computerName"
         } catch {
-            [System.Windows.Forms.MessageBox]::Show("Error deleting file '$filename' from remote host: $_", "Delete File Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
-            $textboxResults.AppendText("Error deleting file '$filename' from remote host: $_`r`n")
+            [System.Windows.Forms.MessageBox]::Show("Error deleting '$filename' from remote host: $_", "Delete Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+            $textboxResults.AppendText("Error deleting '$filename' from remote host: $_`r`n")
         }
     }
 })
@@ -1587,7 +1643,7 @@ $buttonPlaceAndRun.Add_Click({
         $fileExtension = [System.IO.Path]::GetExtension($localFilePath).ToLower()
         $remoteDriveLetter = $remoteFilePath.Substring(0, 1)
         $remoteDirectoryPath = "\\$computerName\$remoteDriveLetter$" + $remoteFilePath.Substring(2)
-        $remoteUncPath = Join-Path -Path $remoteDirectoryPath -ChildPath $filename # here, we append filename to the remote path
+        $remoteUncPath = Join-Path -Path $remoteDirectoryPath -ChildPath $filename
 
         try {
             if ($fileExtension -eq ".ps1") {
@@ -1595,7 +1651,9 @@ $buttonPlaceAndRun.Add_Click({
                 if ($dialogResult -eq "Yes") {
                     # Read PS1 file and convert to Base64
                     $scriptContent = Get-Content $localFilePath -Raw
-                    $bytes = [System.Text.Encoding]::Unicode.GetBytes($scriptContent)
+                    # Create a script block that calls the original script with arguments
+                    $scriptWithArgs = "$scriptContent; & { $scriptContent } $additionalArgs"
+                    $bytes = [System.Text.Encoding]::Unicode.GetBytes($scriptWithArgs)
                     $encodedCommand = [Convert]::ToBase64String($bytes)
                     $commandLine = "powershell.exe -EncodedCommand $encodedCommand"
                 }
@@ -1612,7 +1670,7 @@ $buttonPlaceAndRun.Add_Click({
                     ".bat" { $commandLine = "cmd.exe /c $remoteUncPath $additionalArgs" }
                     ".js" { $commandLine = "cscript.exe $remoteUncPath $additionalArgs" }
                     ".vbs" { $commandLine = "cscript.exe $remoteUncPath $additionalArgs" }
-                    ".dll" { $commandLine = "rundll32.exe $remoteUncPath,$additionalArgs" } # assuming the entry point is in $additionalArgs
+                    ".dll" { $commandLine = "rundll32.exe $remoteUncPath,$additionalArgs" }
                     ".py" { $commandLine = "python $remoteUncPath $additionalArgs" }
                     
                     default { $commandLine = "$remoteUncPath $additionalArgs" }
@@ -1635,7 +1693,6 @@ $buttonPlaceAndRun.Add_Click({
     }
 })
 $form.Controls.Add($buttonPlaceAndRun)
-
 
 $executeCommandButton = New-Object System.Windows.Forms.Button
 $executeCommandButton.Text = "Execute Oneliner"
@@ -1774,7 +1831,7 @@ function Get-File($path) {
 
 $buttonIntelligizer = New-Object System.Windows.Forms.Button
 $buttonIntelligizer.Location = New-Object System.Drawing.Point(160, 355)
-$buttonIntelligizer.Size = New-Object System.Drawing.Size(75,40)
+$buttonIntelligizer.Size = New-Object System.Drawing.Size(70,40)
 $buttonIntelligizer.Text = "Intelligazer"
 $buttonIntelligizer.Add_Click({
     # Create an ArrayList for output
@@ -1820,7 +1877,7 @@ function processMatches($content, $file) {
     $matchList = New-Object System.Collections.ArrayList
     foreach ($type in $patterns.Keys) {
         $pattern = $patterns[$type]
-        $matchResults = [regex]::Matches($content, $pattern) | foreach {$_.Value}
+        $matchResults = [regex]::Matches($content, $pattern) | ForEach-Object {$_.Value}
         foreach ($match in $matchResults) {
             $newObject = New-Object PSObject -Property @{
                 'Source File' = $file
@@ -1833,7 +1890,7 @@ function processMatches($content, $file) {
 
             # If the type is URL, extract the parent domain and add it as a separate indicator
             if ($type -eq 'HTTP/S' -and $match -match '(?i)(?:http[s]?://)?(?:www.)?([^/]+)') {
-                $parentDomain = $Matches[1]
+                $parentDomain = $matchess[1]
                 $domainObject = New-Object PSObject -Property @{
                     'Source File' = $file
                     'Data' = $parentDomain
@@ -1859,9 +1916,9 @@ function processMatches($content, $file) {
                             $query = "SELECT * FROM [$tableName]"
                             $data = Invoke-SqliteQuery -DataSource $file -Query $query -ErrorAction Stop
                             $content = $data | Out-String
-                            $matches = processMatches $content $file
-                            if ($matches -ne $null) {
-                                $output.AddRange(@($matches))
+                            $matchess = processMatches $content $file
+                            if ($matchess -ne $null) {
+                                $output.AddRange(@($matchess))
                             } 
                         } catch {
                             #Add error message if desired
@@ -1879,9 +1936,9 @@ function processMatches($content, $file) {
                     } else {
                         $content = Get-Content $file
                     }
-                    $matches = processMatches $content $file
-                    if ($matches -ne $null) {
-                        $output.AddRange(@($matches))
+                    $matchess = processMatches $content $file
+                    if ($matchess -ne $null) {
+                        $output.AddRange(@($matchess))
                     }
                 }
                 '\.xlsx$' {
@@ -1892,9 +1949,9 @@ function processMatches($content, $file) {
                         try {
                             $range = $sheet.UsedRange
                             $content = $range.Value2 | Out-String
-                            $matches = processMatches $content $file
-                            if ($matches -ne $null) {
-                                $output.AddRange($matches)
+                            $matchess = processMatches $content $file
+                            if ($matchess -ne $null) {
+                                $output.AddRange($matchess)
                             } 
                         }
                         catch {
@@ -1913,9 +1970,9 @@ function processMatches($content, $file) {
                 default {
                     if ((Get-File $file).IsText) {
                         $content = Get-Content $file
-                        $matches = processMatches $content $file
-                        if ($matches -ne $null) {
-                            $output.AddRange($matches)
+                        $matchess = processMatches $content $file
+                        if ($matchess -ne $null) {
+                            $output.AddRange($matchess)
                         }
                     }
                 }
