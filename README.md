@@ -113,6 +113,7 @@ This project integrates or is inspired by a number of other projects and resourc
 - [Persistence Cheatsheet](https://hackmag.com/security/persistence-cheatsheet/)
 
 ### Prefetch and Execution Analysis
+- [TrustedSec Prefetch Blog](https://www.trustedsec.com/blog/prefetch-the-little-snitch-that-tells-on-you/)
 - [Prefetch Forensics](https://isc.sans.edu/diary/Forensic+Value+of+Prefetch/29168/)
 - [Windows Forensics Execution](https://frsecure.com/blog/windows-forensics-execution/)
 
