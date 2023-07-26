@@ -79,12 +79,10 @@ Follow the instructions provided within the script for each feature.
 This project integrates or is inspired by a number of other projects and resources. Here are some that may help you better understand the mechanics, provide further insight or could be useful for other related purposes:
 
 ### Core Components & Tools
-- [OpenPhalanX Repository](https://github.com/YourUserName/OpenPhalanX)
+- [OpenPhalanX Repository](https://github.com/mwhatter/OpenPhalanX)
 - [Visual Studio Code](https://code.visualstudio.com/)
 - [Python Official Site](https://www.python.org/)
 - [Olaf Hartong's Sysmon configuration](https://github.com/olafhartong/sysmon-modular)
-- [RapidTriage](https://github.com/mikekong/RapidTriage)
-- [VMRay](https://www.vmray.com/)
 - [DeepBlueCLI](https://github.com/sans-blue-team/DeepBlueCLI)
 - [Hayabusa](https://github.com/bigbangforensics/Hayabusa)    
 
