@@ -338,6 +338,20 @@ function CollectForensicTimeline {
 }
 }
 
+function Get-PECmdPath {
+    $possibleLocations = @(".\Tools\EZTools\PECmd.exe", ".\Tools\EZTools\net*\PECmd.exe")
+    foreach ($location in $possibleLocations) {
+        $resolvedPaths = Resolve-Path $location -ErrorAction SilentlyContinue
+        if ($resolvedPaths) {
+            foreach ($path in $resolvedPaths) {
+                if (Test-Path $path) {
+                    return $path.Path
+                }
+            }
+        }
+    }
+    throw "PECmd.exe not found in any of the known locations"
+}
 
 function Get_PrefetchMetadata {
     param(
@@ -353,39 +367,35 @@ function Get_PrefetchMetadata {
     $driveLetters = Get_RemoteDriveLetters -HostName $HostName
 
     $ExcelFile = Join-Path $exportPath\$HostName\RapidTriage "RapidTriage.xlsx"
-    $allMetadata = @()
+    
+    $copiedFilesPath = ".\CopiedFiles\Prefetch"
+    New-Item -Path $copiedFilesPath -ItemType Directory -Force
+
+    $pecmdPath = Get-PECmdPath
+    $csvOutputDir = "$exportPath\$HostName\RapidTriage\CSVOutput"
+    New-Item -Path $csvOutputDir -ItemType Directory -Force
 
     foreach ($driveLetter in $driveLetters) {
-        $job = Invoke-Command -ComputerName $HostName -ScriptBlock {
-            param($driveLetter)
+        # Convert drive letter path to UNC format
+        $prefetchPath = "\\$HostName\$driveLetter$\Windows\Prefetch\*.pf"
+        $prefetchFiles = Get-ChildItem -Path $prefetchPath -ErrorAction SilentlyContinue
 
-            $prefetchPath = "${driveLetter}:\Windows\Prefetch\*.pf"
-            $prefetchFiles = Get-ChildItem -Path $prefetchPath -ErrorAction SilentlyContinue
-
-            $fileMetadata = @()
-            foreach ($file in $prefetchFiles) {
-                $fileMetadata += [PSCustomObject]@{
-                    "Name"         = $file.Name
-                    "Size"         = $file.Length
-                    "CreationTime" = $file.CreationTime
-                    "LastAccessTime" = $file.LastAccessTime
-                    "LastWriteTime" = $file.LastWriteTime
-                }
-            }
-
-            return $fileMetadata
-        } -AsJob -JobName "GetPrefetchMetadata-$HostName-$driveLetter" -ArgumentList $driveLetter
-
-        # Wait for the job to complete and receive the results
-        $job | Wait-Job | Out-Null
-        $prefetchMetadata = Receive-Job -Job $job       
-        if ($prefetchMetadata) {
-            $allMetadata += $prefetchMetadata
+        foreach ($file in $prefetchFiles) {
+            # Directly copy the file using UNC path
+            Copy-Item -Path $file.FullName -Destination $copiedFilesPath -Force -ErrorAction SilentlyContinue
         }
+
+        # Process the copied prefetch files with PECmd
+        & $pecmdPath -d $copiedFilesPath --csv $csvOutputDir | Out-Null
     }
 
-    # Export all metadata to Excel file and format
-    $allMetadata | Export-Excel -Path $ExcelFile -WorksheetName "PrefetchMetadata" -AutoSize -AutoFilter -FreezeFirstColumn -BoldTopRow -TableName "PrefetchMetadataTable"
+    # Collect the CSV results and import to the Excel workbook
+    $csvFiles = Get-ChildItem -Path $csvOutputDir -Filter "*.csv" -File
+    foreach ($csvFile in $csvFiles) {
+        $csvData = Import-Csv -Path $csvFile.FullName
+        $csvData | Export-Excel -Path $ExcelFile -WorksheetName $csvFile.BaseName -AutoSize -AutoFilter -FreezeFirstColumn -BoldTopRow -TableName "$($csvFile.BaseName)Table"
+    }
+
     $colprestart = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
     Write-Host "Collected Prefetch from $HostName at $colprestart" -ForegroundColor Cyan 
     Log_Message -logfile $logfile -Message "Collected Prefetch from $HostName"
