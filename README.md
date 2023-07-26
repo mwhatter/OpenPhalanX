@@ -73,6 +73,7 @@ After installation, you can run the `Defending_Off_the_Land.ps1` script through 
 
 Follow the instructions provided within the script for each feature. 
 
+Example workflow: Enter remote computer name; run RapidTriage; run WinEventalyzer; run Intelligazer; investigate indicators; run ProcAsso; investigate execution chain.
 
 ## Resources
 
