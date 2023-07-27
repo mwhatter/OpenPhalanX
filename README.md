@@ -43,6 +43,8 @@ To install OpenPhalanX on a Windows host, you will need to execute a PowerShell 
 
 5. With "Deploy_Phalanx_Formation.ps1" open in the editor, go to the Terminal menu and select "Run Active File". This will execute the installation script in the Terminal window.
 
+   You will need the requisite permissions within AD to force a password reset, disbale, or enable an account. You also need to have admin rights and powershell remoting must be enabled on the remote host.
+
 ## API Keys Configuration
 
 OpenPhalanX utilizes several APIs to facilitate its operations, each of which require API keys. These keys should be added to the locations specified in the `API_Keys&Extensions.txt` file.
