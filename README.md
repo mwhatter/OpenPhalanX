@@ -1,6 +1,6 @@
 # OpenPhalanX: No one stands alone
 
-OpenPhalanX is a comprehensive toolkit designed to secure remote systems. Whether you're an IT professional seeking to automate system tasks, or a cybersecurity specialist handling incident response, OpenPhalanX offers an array of features to streamline your operations.
+OpenPhalanX is a comprehensive toolkit designed to secure remote systems. Whether you're an IT professional seeking to automate system tasks, or a cybersecurity specialist handling incident response, OpenPhalanX offers an array of features to streamline your operations. This project is primarily written in PowerShell. I believe this is possibly the most beginner friendly language to work with and I hope it helps everyone feel comfortable digging into the code to understand how it works and how you might modify it to fit any of your needs.
 
 ## Table of Contents
 - [Installation](#installation)
@@ -50,6 +50,10 @@ OpenPhalanX utilizes several APIs to facilitate its operations, each of which re
 This repository has a directory titled "Integrations" which contains additional file submission python helpers and button click code. I do not have an api key for all of these integrations and the code you select may not have been tested. 
 
 Comment out any api queries you want to exclude from the prompts for Get Intel and Sandbox URL/Retrieve Report. Add any api's you wish to query as needed(email mwhatter@openphalanx for assistance).
+
+File submissions to sandboxes should be done with reverence to the potentially sensitive data within the sample being detonated. The default file sandbox integration with OpenPhalanX is Anomali's API with specification to use their integration with VMRay. I highly recommend using either a private account with one of the provided integration examples or standing up a private instance of Cuckoo.
+
+You are responsible for complying with any API provider's usage requirements for your situation.
 
 ## Features
 
