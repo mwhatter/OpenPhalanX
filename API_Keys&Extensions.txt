@@ -9,8 +9,8 @@ https://ui.threatstream.com/settings?action=profile - to retrieve your api key
 https://pulsedive.com/api/ - to retrieve api key
 https://pulsedive.com/about/addon - for the web browser addon of your preference
 
-lines in DOL_ACEv2.ps1 to modify
-Everything you need to replace is placeheld with "redacted" - 12 total occurances
+The referenced line numbers can potentially change as Deffending Off the Land is updated but should be close if not exact. 
+Everything you need to replace is placeheld with "redacted" 
 Line 2212, in button BoxEmAll
 	    $apiKey = "redacted"
 		insert anomali useremail:key####
