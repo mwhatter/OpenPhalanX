@@ -104,7 +104,7 @@ if ($response) {
     Invoke-WebRequest -Uri $downloadUrl -OutFile $installerPath
 
     # Install Python for all users
-    Start-Process -FilePath $installerPath -ArgumentList "/quiet", "TargetDir=C:\Python", "AddToPath=1", "AssociateFiles=1", "Shortcuts=1" -Wait
+    Start-Process -FilePath $installerPath -ArgumentList "/quiet", "InstallAllUsers=1", "TargetDir=C:\Python", "AddToPath=1", "AssociateFiles=1", "Shortcuts=1" -Wait
 
     # Clean up the installer
     Remove-Item -Path $installerPath
