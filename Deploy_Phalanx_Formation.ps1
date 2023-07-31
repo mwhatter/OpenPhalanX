@@ -98,16 +98,16 @@ $response = Invoke-WebRequest -Uri $downloadUrl
 # Extract the download URL for the latest stable release of Python 3
 if ($response) {
     # Define the path to save the installer
-    $installerPath = Join-Path -Path c:\Test -ChildPath "python_installer.exe"
+    $installerFile =  "python_installer.exe"
 
     # Download the installer
-    Invoke-WebRequest -Uri $downloadUrl -OutFile $installerPath
+    Invoke-WebRequest -Uri $downloadUrl -OutFile $installerFile
 
     # Install Python for all users
-    Start-Process -FilePath $installerPath -ArgumentList "/quiet", "InstallAllUsers=1", "TargetDir=C:\Python", "AddToPath=1", "AssociateFiles=1", "Shortcuts=1" -Wait
+    Start-Process -FilePath $installerFile -ArgumentList "/quiet", "InstallAllUsers=1", "TargetDir=C:\Python", "AddToPath=1", "AssociateFiles=1", "Shortcuts=1" -Wait
 
     # Clean up the installer
-    Remove-Item -Path $installerPath
+    Remove-Item -Path $installerFile
     Write-Host "Python downloaded and installed successfully."
 }
 else {
