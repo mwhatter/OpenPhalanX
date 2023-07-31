@@ -1,6 +1,6 @@
 # OpenPhalanX: No one stands alone
 
-OpenPhalanX is a comprehensive toolkit designed to secure remote systems. Whether you're an IT professional seeking to automate system tasks, or a cybersecurity specialist handling incident response, OpenPhalanX offers an array of features to streamline your operations. This project is primarily written in PowerShell. I believe this is possibly the most beginner friendly language to work with and I hope it helps everyone feel comfortable digging into the code to understand how it works and how you might modify it to fit any of your needs.
+OpenPhalanX is a comprehensive toolkit designed to secure remote systems. Whether you're an IT professional seeking to automate system tasks, or a cybersecurity specialist handling incident response, OpenPhalanX offers an array of features to streamline your operations. This project is primarily written in PowerShell and I believe this is possibly the most beginner friendly language to work with. I hope it helps everyone feel comfortable digging into the code to understand how it works and how you might modify it to fit any of your needs.
 
 ## Table of Contents
 - [Installation](#installation)
