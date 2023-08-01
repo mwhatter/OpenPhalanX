@@ -4152,11 +4152,8 @@ $tooltip.SetToolTip($buttonUndoIsolation, "Click to remove firewall rules applie
 
 $Form.Add_FormClosing({
     $ScriptEndTime = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $ScriptPath = $PSCommandPath
-    $ScriptContent = Get-Content -Path $ScriptPath -Raw
     Log_Message -Message "Your session ended at $ScriptEndTime" -LogFilePath $LogFile
     $textboxResults.AppendText("Your session ended at $ScriptEndTime")
-    Log_Message -Message "This script is built to log a copy of itself upong closing" -LogFilePath $LogFile
-    Log_Message -Message "Script Content: $ScriptContent" -LogFilePath $LogFile
+
 })
 $result = $Form.ShowDialog()
