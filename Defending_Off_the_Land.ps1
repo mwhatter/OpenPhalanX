@@ -199,7 +199,7 @@ function CollectForensicTimeline {
     
     foreach ($Hostname in $Hostnames) {
         try {
-            $session = New-CimSession -ComputerName $Hostname -ErrorAction SilentlyContinue
+            $session = New-CimSession -ComputerName $Hostname -ErrorAction $InformationPreference
 
             if (-not $session) {
                 [System.Windows.Forms.MessageBox]::Show("Failed to connect to $Hostname. Please check the hostname and try again.", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
@@ -320,7 +320,7 @@ function CollectForensicTimeline {
 				Close-ExcelPackage $ExcelStartupCommand
 			}
 
-			$NetworkConnections = Invoke-Command -ComputerName $Hostname -ScriptBlock { Get-NetTCPConnection } -ErrorAction SilentlyContinue | select-object -Property CreationTime,State,LocalAddress,LocalPort,OwningProcess,RemoteAddress,RemotePort
+			$NetworkConnections = Invoke-Command -ComputerName $Hostname -ScriptBlock { Get-NetTCPConnection } -ErrorAction $InformationPreference | select-object -Property CreationTime,State,LocalAddress,LocalPort,OwningProcess,RemoteAddress,RemotePort
             if ($NetworkConnections) {
                 $colNetConnStart = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
                 Write-Host "Collected Network Connections from $HostName at $colNetConnStart" -ForegroundColor Cyan 
@@ -341,7 +341,7 @@ function CollectForensicTimeline {
 function Get-PECmdPath {
     $possibleLocations = @(".\Tools\EZTools\PECmd.exe", ".\Tools\EZTools\net*\PECmd.exe")
     foreach ($location in $possibleLocations) {
-        $resolvedPaths = Resolve-Path $location -ErrorAction SilentlyContinue
+        $resolvedPaths = Resolve-Path $location -ErrorAction $InformationPreference
         if ($resolvedPaths) {
             foreach ($path in $resolvedPaths) {
                 if (Test-Path $path) {
@@ -378,11 +378,11 @@ function Get_PrefetchMetadata {
     foreach ($driveLetter in $driveLetters) {
         # Convert drive letter path to UNC format
         $prefetchPath = "\\$HostName\$driveLetter$\Windows\Prefetch\*.pf"
-        $prefetchFiles = Get-ChildItem -Path $prefetchPath -ErrorAction SilentlyContinue
+        $prefetchFiles = Get-ChildItem -Path $prefetchPath -ErrorAction $InformationPreference
 
         foreach ($file in $prefetchFiles) {
             # Directly copy the file using UNC path
-            Copy-Item -Path $file.FullName -Destination $copiedFilesPath -Force -ErrorAction SilentlyContinue
+            Copy-Item -Path $file.FullName -Destination $copiedFilesPath -Force -ErrorAction $InformationPreference
         }
 
         # Process the copied prefetch files with PECmd
@@ -487,7 +487,7 @@ function Copy_BrowserHistoryFiles {
         [string]$LocalDestination
     )
 
-    $session = New-CimSession -ComputerName $RemoteHost -ErrorAction SilentlyContinue
+    $session = New-CimSession -ComputerName $RemoteHost -ErrorAction $InformationPreference
 
     if (-not $session) {
         [System.Windows.Forms.MessageBox]::Show("Failed to connect to $RemoteHost. Please check the hostname and try again.", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
@@ -524,7 +524,7 @@ function Copy_BrowserHistoryFiles {
                 New-Item -ItemType Directory -Path $UserDestination | Out-Null
             }
 
-	    $ChromeProfiles = Get-ChildItem -Path $ChromeProfilesPath -Filter "Profile*" -Directory -ErrorAction SilentlyContinue | out-null
+	    $ChromeProfiles = Get-ChildItem -Path $ChromeProfilesPath -Filter "Profile*" -Directory -ErrorAction $InformationPreference | out-null
 
 		$ChromeProfiles | ForEach-Object {
     		$ProfilePath = $_.FullName
@@ -532,10 +532,10 @@ function Copy_BrowserHistoryFiles {
     		$ProfileName = $_.Name
     		$DestinationPath = "$UserDestination\$ProfileName-Chrome.sqlite"
     
-    		Copy-Item -Path $ChromeHistoryPathalt -Destination $DestinationPath -Force -ErrorAction SilentlyContinue | out-null
+    		Copy-Item -Path $ChromeHistoryPathalt -Destination $DestinationPath -Force -ErrorAction $InformationPreference | out-null
 		}
 
-        $BraveProfiles = Get-ChildItem -Path $BraveProfilesPath -Filter "Profile*" -Directory -ErrorAction SilentlyContinue | out-null
+        $BraveProfiles = Get-ChildItem -Path $BraveProfilesPath -Filter "Profile*" -Directory -ErrorAction $InformationPreference | out-null
 
         $BraveProfiles | ForEach-Object {
     		$BProfilePath = $_.FullName
@@ -543,10 +543,10 @@ function Copy_BrowserHistoryFiles {
     		$BProfileName = $_.Name
     		$DestinationPath = "$UserDestination\$BProfileName-Brave.sqlite"
     
-    		Copy-Item -Path $BraveHistoryPathalt -Destination $DestinationPath -Force -ErrorAction SilentlyContinue | out-null
+    		Copy-Item -Path $BraveHistoryPathalt -Destination $DestinationPath -Force -ErrorAction $InformationPreference | out-null
 		}
 
-        $VivaldiProfiles = Get-ChildItem -Path $VivaldiProfilesPath -Filter "Profile*" -Directory -ErrorAction SilentlyContinue | out-null
+        $VivaldiProfiles = Get-ChildItem -Path $VivaldiProfilesPath -Filter "Profile*" -Directory -ErrorAction $InformationPreference | out-null
 
         $VivaldiProfiles | ForEach-Object {
     		$VProfilePath = $_.FullName
@@ -554,10 +554,10 @@ function Copy_BrowserHistoryFiles {
     		$VProfileName = $_.Name
     		$DestinationPath = "$UserDestination\$VProfileName-Vivaldi.sqlite"
     
-    		Copy-Item -Path $VivaldiHistoryPathalt -Destination $DestinationPath -Force -ErrorAction SilentlyContinue | out-null
+    		Copy-Item -Path $VivaldiHistoryPathalt -Destination $DestinationPath -Force -ErrorAction $InformationPreference | out-null
 		}
 
-        $EpicProfiles = Get-ChildItem -Path $EpicProfilesPath -Filter "Profile*" -Directory -ErrorAction SilentlyContinue | out-null
+        $EpicProfiles = Get-ChildItem -Path $EpicProfilesPath -Filter "Profile*" -Directory -ErrorAction $InformationPreference | out-null
 
         $EpicProfiles | ForEach-Object {
     		$EProfilePath = $_.FullName
@@ -565,17 +565,17 @@ function Copy_BrowserHistoryFiles {
     		$EProfileName = $_.Name
     		$DestinationPath = "$UserDestination\$EProfileName-Epic.sqlite"
     
-    		Copy-Item -Path $EpicHistoryPathalt -Destination $DestinationPath -Force -ErrorAction SilentlyContinue | out-null
+    		Copy-Item -Path $EpicHistoryPathalt -Destination $DestinationPath -Force -ErrorAction $InformationPreference | out-null
 		}	
 		
-            Copy-Item -Path $EdgeHistoryPath -Destination $UserDestination\Edge.sqlite -Force -ErrorAction SilentlyContinue | out-null
-            Copy-Item -Path $FirefoxHistoryPath -Destination $UserDestination\FireFox.sqlite -Force -ErrorAction SilentlyContinue | out-null
-            Copy-Item -Path $ChromeHistoryPath -Destination $UserDestination\Chrome.sqlite -Force -ErrorAction SilentlyContinue | out-null
-            Copy-Item -Path $PowerShellHistoryPath -Destination $UserDestination\PSHistory.txt -Force -ErrorAction SilentlyContinue | out-null
-            Copy-Item -Path $OperaHistoryPath -Destination $UserDestination\Opera.sqlite -Force -ErrorAction SilentlyContinue | out-null
-            Copy-Item -Path $BraveHistoryPath -Destination $UserDestination\Brave.sqlite -Force -ErrorAction SilentlyContinue | out-null
-            Copy-Item -Path $VivaldiHistoryPath -Destination $UserDestination\Vivaldi.sqlite -Force -ErrorAction SilentlyContinue | out-null
-            Copy-Item -Path $EpicHistoryPath -Destination $UserDestination\Epic.sqlite -Force -ErrorAction SilentlyContinue | out-null
+            Copy-Item -Path $EdgeHistoryPath -Destination $UserDestination\Edge.sqlite -Force -ErrorAction $InformationPreference | out-null
+            Copy-Item -Path $FirefoxHistoryPath -Destination $UserDestination\FireFox.sqlite -Force -ErrorAction $InformationPreference | out-null
+            Copy-Item -Path $ChromeHistoryPath -Destination $UserDestination\Chrome.sqlite -Force -ErrorAction $InformationPreference | out-null
+            Copy-Item -Path $PowerShellHistoryPath -Destination $UserDestination\PSHistory.txt -Force -ErrorAction $InformationPreference | out-null
+            Copy-Item -Path $OperaHistoryPath -Destination $UserDestination\Opera.sqlite -Force -ErrorAction $InformationPreference | out-null
+            Copy-Item -Path $BraveHistoryPath -Destination $UserDestination\Brave.sqlite -Force -ErrorAction $InformationPreference | out-null
+            Copy-Item -Path $VivaldiHistoryPath -Destination $UserDestination\Vivaldi.sqlite -Force -ErrorAction $InformationPreference | out-null
+            Copy-Item -Path $EpicHistoryPath -Destination $UserDestination\Epic.sqlite -Force -ErrorAction $InformationPreference | out-null
             
         }
     $histstart = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
@@ -684,7 +684,7 @@ function Process_DeepBlueCLI {
     foreach($logFile in $logFiles) {
         $outFile = Join-Path "$exportPath\$HostName\DeepBlueCLI" "$($logFile -replace ".evtx", ".txt")"
         try {
-            & $deepBlueCLIPath "$EVTXPath\$HostName\$logFile" -ErrorAction SilentlyContinue | Out-File -FilePath $outFile
+            & $deepBlueCLIPath "$EVTXPath\$HostName\$logFile" -ErrorAction $InformationPreference | Out-File -FilePath $outFile
         }
         catch {
             # Suppress the error message by doing nothing
@@ -838,7 +838,7 @@ function Update-ListView {
     )
     $listView.Items.Clear()
     $currentPathTextBox.Text = $path
-    $items = Get-ChildItem -Path $path -Force -ErrorAction SilentlyContinue
+    $items = Get-ChildItem -Path $path -Force -ErrorAction $InformationPreference
     foreach ($item in $items) {
         $listViewItem = New-Object System.Windows.Forms.ListViewItem($item.Name)
         $listViewItem.ImageIndex = if ($item.PSIsContainer) { 0 } else { 1 }
@@ -1245,7 +1245,7 @@ $buttonKillProcess.Add_Click({
 
     if (![string]::IsNullOrEmpty($computerName) -and ![string]::IsNullOrEmpty($selectedProcess)) {
         $processId = $selectedProcess.split()[0]
-        $process = Get-CimInstance -ClassName Win32_Process -Filter "ProcessId = $processId" -ComputerName $computerName -ErrorAction SilentlyContinue
+        $process = Get-CimInstance -ClassName Win32_Process -Filter "ProcessId = $processId" -ComputerName $computerName -ErrorAction $InformationPreference
         if ($process) {
             try {
                 $result = Invoke-CimMethod -CimInstance $process -MethodName "Terminate" -ErrorAction Stop
@@ -1291,7 +1291,7 @@ function CopyModules {
             $moduleFilename = [System.IO.Path]::GetFileName($modulePath)
             $destinationPath = Join-Path -Path $using:CopiedFilesPath -ChildPath $moduleFilename
 
-            Copy-Item $uncPath -Destination $destinationPath -Force -ErrorAction SilentlyContinue
+            Copy-Item $uncPath -Destination $destinationPath -Force -ErrorAction $InformationPreference
         }
     }
 }
@@ -1492,7 +1492,7 @@ $buttonHuntFile.Add_Click({
             try {
                 $recycleBinItems = Invoke-Command -ComputerName $remoteComputer -ScriptBlock {
                     Get-ChildItem 'C:\$Recycle.Bin' -Recurse -Force | Where-Object { $_.PSIsContainer -eq $false -and $_.Name -like "$I*" } | ForEach-Object {
-                        $originalFilePath = Get-Content $_.FullName -ErrorAction SilentlyContinue | Select-Object -First 1
+                        $originalFilePath = Get-Content $_.FullName -ErrorAction $InformationPreference | Select-Object -First 1
                         $originalFilePath = $originalFilePath -replace '^[^\:]*\:', '' # Remove non-printable characters before the colon
                         [PSCustomObject]@{
                             Name = $_.Name
@@ -1874,7 +1874,7 @@ $buttonIntelligizer.Add_Click({
         $comboBoxComputerName.Text
     }
 
-    Remove-Item .\Logs\Reports\$computerName\indicators.html -ErrorAction SilentlyContinue 
+    Remove-Item .\Logs\Reports\$computerName\indicators.html -ErrorAction $InformationPreference 
     New-Item -ItemType Directory -Path ".\Logs\Reports\$computerName\" -Force | Out-Null
     $Intelligazerstart = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
     Write-Host "Intelligazer started at $Intelligazerstart" -ForegroundColor Cyan
@@ -1916,7 +1916,7 @@ function processMatches($content, $file) {
 }
 
     foreach ($dir in $logDirs) {
-        $files = Get-ChildItem $dir -Recurse -File -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName 
+        $files = Get-ChildItem $dir -Recurse -File -ErrorAction $InformationPreference | Select-Object -ExpandProperty FullName 
         foreach ($file in $files) {
             switch -regex ($file) {
                 '\.sqlite$' {
@@ -2548,7 +2548,7 @@ $vtMeta = $ResponseVirusTotal.meta.url_info | ForEach-Object {
     }
 }
     # Selecting necessary attributes from VirusTotal data
-    $dataAttributes = $ResponseVirusTotal.data.attributes | Get-Member -MemberType NoteProperty -ErrorAction SilentlyContinue | Where-Object {$_.Name -ne "results"} | Select-Object -ExpandProperty Name | out-null
+    $dataAttributes = $ResponseVirusTotal.data.attributes | Get-Member -MemberType NoteProperty -ErrorAction $InformationPreference | Where-Object {$_.Name -ne "results"} | Select-Object -ExpandProperty Name | out-null
     
     # Creating a table with selected attributes
     $vtData = $ResponseVirusTotal.data.attributes | Select-Object $dataAttributes | ForEach-Object {
@@ -3117,7 +3117,7 @@ $buttonIsolateHost.Add_Click({
             }
             
             # Create the isolation firewall rule if it doesn't exist
-            $isolationRule = Get-NetFirewallRule -DisplayName "ISOLATION: Allowed Hosts" -ErrorAction SilentlyContinue
+            $isolationRule = Get-NetFirewallRule -DisplayName "ISOLATION: Allowed Hosts" -ErrorAction $InformationPreference
             if (!$isolationRule) {
                 New-NetFirewallRule -DisplayName "ISOLATION: Allowed Hosts" -Direction Outbound -RemoteAddress $localHostIPs -Action Allow -Enabled:True
             } else {
