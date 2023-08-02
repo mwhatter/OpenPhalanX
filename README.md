@@ -43,7 +43,7 @@ To install OpenPhalanX on a Windows host, you will need to execute a PowerShell 
 
 5. With "Deploy_Phalanx_Formation.ps1" open in the editor, go to the Terminal menu and select "Run Active File". This will execute the installation script in the Terminal window.
 
-   You will need the requisite permissions within AD to force a password reset, disbale, or enable an account. You also need to have admin rights and powershell remoting must be enabled on the remote host.
+   You will need the requisite permissions within AD to force a password reset, disable, or enable an account. You also need to have admin rights and powershell remoting must be enabled on the remote host.
    
    You will also need the ActiveDirectory powershell module. This module is part of RSAT and can be enabled by follow the instructions here - https://learn.microsoft.com/en-US/troubleshoot/windows-server/system-management-components/remote-server-administration-tools
 
