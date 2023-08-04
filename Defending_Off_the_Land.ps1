@@ -384,10 +384,10 @@ function Get_PrefetchMetadata {
             # Directly copy the file using UNC path
             Copy-Item -Path $file.FullName -Destination $copiedFilesPath -Force -ErrorAction $InformationPreference
         }
-
-        # Process the copied prefetch files with PECmd
-        & $pecmdPath -d $copiedFilesPath --csv $csvOutputDir | Out-Null
     }
+
+    # Process the copied prefetch files with PECmd
+	& $pecmdPath -d $copiedFilesPath --csv $csvOutputDir | Out-Null
 
     # Collect the CSV results and import to the Excel workbook
     $csvFiles = Get-ChildItem -Path $csvOutputDir -Filter "*.csv" -File
