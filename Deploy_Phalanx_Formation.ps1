@@ -226,7 +226,7 @@ $zimmermanToolsZip = Invoke-WebRequest -URI "https://raw.githubusercontent.com/E
 
 try {
     unblock-file ".\Tools\EZTools\Get-ZimmermanTools.ps1"
-    .\Tools\EZTools\Get-ZimmermanTools.ps1 -Dest ".\Tools\EZTools" -Verbose:$false *> $null
+    .\Tools\EZTools\Get-ZimmermanTools.ps1 -Dest ".\Tools\EZTools" -NetVersion 4 -Verbose:$false *> $null
     Write-Host "Get-ZimmermanTools download and execution successful."
 } catch {
     Write-Host "Get-ZimmermanTools download and execution failed:`n$_"
