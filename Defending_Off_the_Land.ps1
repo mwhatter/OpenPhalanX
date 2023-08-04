@@ -207,7 +207,7 @@ function CollectForensicTimeline {
             }
 
             New-Item -ItemType Directory -Path ".\Logs\Reports\$Hostname\RapidTriage" -Force | Out-Null
-            $ExcelFile = Join-Path ".\Logs\Reports\$Hostname\RapidTriage" "RapidTriage.xlsx"
+            $ExcelFile = Join-Path ".\Logs\Reports\$Hostname\RapidTriage" "$Hostname-RapidTriage.xlsx"
 
             $SystemUsers = Get-CimInstance -ClassName Win32_SystemUsers -CimSession $session
             if ($SystemUsers) {
