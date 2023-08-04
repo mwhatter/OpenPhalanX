@@ -1876,13 +1876,13 @@ $buttonIntelligizer.Add_Click({
         $comboBoxComputerName.Text
     }
 
-    Remove-Item .\Logs\Reports\$computerName\indicators.html -ErrorAction $InformationPreference 
+    Remove-Item .\Logs\Reports\$computerName\indicators.html -ErrorAction SilentlyContinue 
     New-Item -ItemType Directory -Path ".\Logs\Reports\$computerName\" -Force | Out-Null
     $Intelligazerstart = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
     Write-Host "Intelligazer started at $Intelligazerstart" -ForegroundColor Cyan
     Log_Message -logfile $logfile -Message "Intelligazer started at "
     $textboxResults.AppendText("Intelligazer started at $Intelligazerstart `r`n")
-    $logDirs = ".\Logs\Reports\$computerName\ProcessAssociations", ".\Logs\EVTX\$computerName", ".\Logs\Reports\$computerName\RapidTriage\", ".\Logs\Reports\$computerName\ADRecon\"
+    $logDirs = ".\Logs\Reports\$computerName\ProcessAssociations", ".\Logs\EVTX\$computerName", ".\Logs\Reports\$computerName\RapidTriage", ".\Logs\Reports\$computerName\ADRecon"
     
     
 function processMatches($content, $file) {
@@ -1902,7 +1902,7 @@ function processMatches($content, $file) {
 
             # If the type is URL, extract the parent domain and add it as a separate indicator
             if ($type -eq 'HTTP/S' -and $match -match '(?i)(?:http[s]?://)?(?:www.)?([^/]+)') {
-                $parentDomain = $matchess[1]
+                $parentDomain = $matches[1]
                 $domainObject = New-Object PSObject -Property @{
                     'Source File' = $file
                     'Data' = $parentDomain
@@ -1918,7 +1918,7 @@ function processMatches($content, $file) {
 }
 
     foreach ($dir in $logDirs) {
-        $files = Get-ChildItem $dir -Recurse -File -ErrorAction $InformationPreference | Select-Object -ExpandProperty FullName 
+        $files = Get-ChildItem $dir -Recurse -File -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName 
         foreach ($file in $files) {
             switch -regex ($file) {
                 '\.sqlite$' {
