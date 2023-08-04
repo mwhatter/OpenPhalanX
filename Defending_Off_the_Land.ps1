@@ -368,7 +368,7 @@ function Get_PrefetchMetadata {
 
     $ExcelFile = Join-Path $exportPath\$HostName\RapidTriage "RapidTriage.xlsx"
     
-    $copiedFilesPath = ".\CopiedFiles\Prefetch"
+    $copiedFilesPath = ".\CopiedFiles\$HostName\Prefetch"
     New-Item -Path $copiedFilesPath -ItemType Directory -Force
 
     $pecmdPath = Get-PECmdPath
