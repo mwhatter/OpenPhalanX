@@ -1865,11 +1865,12 @@ $buttonIntelligizer.Add_Click({
     $includeFilePath = [System.Windows.Forms.MessageBox]::Show("Do you want to include File Paths?", "Include File Paths", [System.Windows.Forms.MessageBoxButtons]::YesNo, [System.Windows.Forms.MessageBoxIcon]::Question)
 
     if ($includeFilePath -eq 'Yes') {
-        $patterns['File Path'] = '[a-zA-Z]:\\(?:[^<>:"/\\|?*\r\n]+\\)*[^<>:"/\\|?*\r\n]*'
-    }
+        $patterns['File Path'] = '(file:///)?(?![sSpP]:)[a-zA-Z]:[\\\\/].+?\.[a-zA-Z0-9]{2,5}(?=[\s,;]|$)'
+
+
+    }    
 
     # Rest of your code continues here
-
     $computerName = if ($comboBoxComputerName.SelectedItem) {
         $comboBoxComputerName.SelectedItem.ToString()
     } else {
@@ -1976,9 +1977,9 @@ function processMatches($content, $file) {
                     
                 
                     $excel.Quit()
-                    [System.Runtime.Interopservices.Marshal]::ReleaseComObject($workbook)
-                    [System.Runtime.Interopservices.Marshal]::ReleaseComObject($excel)
-                }
+                    [System.Runtime.Interopservices.Marshal]::ReleaseComObject($workbook) | Out-Null
+                    [System.Runtime.Interopservices.Marshal]::ReleaseComObject($excel) | Out-Null
+                } 
                 default {
                     if ((Get-File $file).IsText) {
                         $content = Get-Content $file
