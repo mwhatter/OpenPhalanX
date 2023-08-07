@@ -82,6 +82,7 @@ $modules = @('ImportExcel', 'ActiveDirectory', 'PSSQLite')
 # Check each module and install if not present
 foreach ($module in $modules) {
     if (-not (Get-Module -ListAvailable -Name $module)) {
+    	Add-WindowsCapability -Online -Name Rsat.ActiveDirectory.DS-LDS.Tools~~~~0.0.1.0 | Out-Null
         Install-Module -Name $module -Force
     }
     Import-Module -Name $module
