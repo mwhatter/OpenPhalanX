@@ -394,7 +394,7 @@ function Get_PrefetchMetadata {
     $csvFiles = Get-ChildItem -Path $csvOutputDir -Filter "*.csv" -File
     foreach ($csvFile in $csvFiles) {
         $csvData = Import-Csv -Path $csvFile.FullName
-        $csvData | Export-Excel -Path $ExcelFile -WorksheetName $csvFile.BaseName -AutoSize -AutoFilter -FreezeFirstColumn -BoldTopRow -TableName "$($csvFile.BaseName)Table"
+        $csvData | Export-Excel -Path $ExcelFile -WorksheetName $csvFile.BaseName -AutoSize -AutoFilter -FreezeFirstColumn -BoldTopRow -FreezeTopRow -TableStyle Medium6
     }
 
     Remove-Item -Path $csvOutputDir -Force -Recurse
