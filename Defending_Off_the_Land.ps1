@@ -367,7 +367,7 @@ function Get_PrefetchMetadata {
 
     $driveLetters = Get_RemoteDriveLetters -HostName $HostName
 
-    $ExcelFile = Join-Path $exportPath\$HostName\RapidTriage "RapidTriage.xlsx"
+    $ExcelFile = Join-Path $exportPath\$HostName\RapidTriage "$HostName-RapidTriage.xlsx"
     
     $copiedFilesPath = ".\CopiedFiles\$HostName\Prefetch"
     New-Item -Path $copiedFilesPath -ItemType Directory -Force
@@ -379,16 +379,16 @@ function Get_PrefetchMetadata {
     foreach ($driveLetter in $driveLetters) {
         # Convert drive letter path to UNC format
         $prefetchPath = "\\$HostName\$driveLetter$\Windows\Prefetch\*.pf"
-        $prefetchFiles = Get-ChildItem -Path $prefetchPath -ErrorAction $InformationPreference
+        $prefetchFiles = Get-ChildItem -Path $prefetchPath -ErrorAction SilentlyContinue
 
         foreach ($file in $prefetchFiles) {
             # Directly copy the file using UNC path
-            Copy-Item -Path $file.FullName -Destination $copiedFilesPath -Force -ErrorAction $InformationPreference
+            Copy-Item -Path $file.FullName -Destination $copiedFilesPath -Force -ErrorAction SilentlyContinue
         }
     }
 
     # Process the copied prefetch files with PECmd
-	& $pecmdPath -d $copiedFilesPath --csv $csvOutputDir | Out-Null
+    & $pecmdPath -d $copiedFilesPath --csv $csvOutputDir
 
     # Collect the CSV results and import to the Excel workbook
     $csvFiles = Get-ChildItem -Path $csvOutputDir -Filter "*.csv" -File
@@ -397,6 +397,7 @@ function Get_PrefetchMetadata {
         $csvData | Export-Excel -Path $ExcelFile -WorksheetName $csvFile.BaseName -AutoSize -AutoFilter -FreezeFirstColumn -BoldTopRow -TableName "$($csvFile.BaseName)Table"
     }
 
+    Remove-Item -Path $csvOutputDir -Force -Recurse
     $colprestart = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
     Write-Host "Collected Prefetch from $HostName at $colprestart" -ForegroundColor Cyan 
     Log_Message -logfile $logfile -Message "Collected Prefetch from $HostName"
