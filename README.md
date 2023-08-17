@@ -162,7 +162,7 @@ Contributions are always welcome! If you're interested in enhancing OpenPhalanX,
 
 Special thanks to creators of other projects that help make OpenPhalanX what it is:
 - [Eric Zimmerman](https://github.com/sponsors/EricZimmerman)
-- [Yamato Security](https://github.com/Yamato-Security)
+- [Zach Mathis](https://github.com/Yamato-Security)
 - [Eric Conrad](https://www.ericconrad.com/)
 
 ## Contact
