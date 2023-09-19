@@ -643,7 +643,7 @@ function Export_AllLogs {
 	    
                 # Skip logs of size 68KB and logs with "configuration" in the name
                 if ($_.Length -ne 69632 -and $_.Name -notlike "*onfiguration*") {
-                    $localLogPath = Join-Path $using:EVTXPath $using:ComputerName "$($_.Name)"
+                    $localLogPath = Join-Path $using:EVTXPath using:HostName"($_.Name)"
                     Copy-Item -LiteralPath $_.FullName -Destination $localLogPath -Force -ErrorAction SilentlyContinue
                     return $localLogPath
                 }
