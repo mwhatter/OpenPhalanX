@@ -628,27 +628,29 @@ function Export_AllLogs {
 
     foreach ($driveLetter in $driveLetters) {
         # Remote log path
-        $remoteLogPath1 = "\\$HostName\$driveLetter$\Windows\System32\winevt\Logs"
-        $remoteLogPath2 = "\\$HostName\$driveLetter$\Windows\System32\winevt\EventLogs"
-    
+        $remoteLogPath1 = "\\$ComputerName\$driveLetter$\Windows\System32\winevt\Logs"
+        $remoteLogPath2 = "\\$ComputerName\$driveLetter$\Windows\System32\winevt\EventLogs"
+        $remoteLogPath3 = "\\$ComputerName\$driveLetter$\Windows\System32\drivers\CrowdStrike"
+
         if ((Test-Path $remoteLogPath1) -or (Test-Path $remoteLogPath2)) {
             # Get all logs from remote host
             $logs = Get-ChildItem -Path $remoteLogPath1 -Filter *.evtx -ErrorAction SilentlyContinue
             $logs += Get-ChildItem -Path $remoteLogPath2 -Filter *.evtx -ErrorAction SilentlyContinue
-            
+            $logs += Get-ChildItem -Path $remoteLogPath3 -Filter *.log -ErrorAction SilentlyContinue
+
             # Copy the files
             $copiedLogs = $logs | ForEach-Object -ThrottleLimit 100 -Parallel {
+	    
                 # Skip logs of size 68KB and logs with "configuration" in the name
                 if ($_.Length -ne 69632 -and $_.Name -notlike "*onfiguration*") {
-                    $localLogPath = Join-Path $using:EVTXPath $using:HostName "$($_.Name)"
+                    $localLogPath = Join-Path $using:EVTXPath $using:ComputerName "$($_.Name)"
                     Copy-Item -LiteralPath $_.FullName -Destination $localLogPath -Force -ErrorAction SilentlyContinue
                     return $localLogPath
                 }
             }
-    
             # Count the copied files
             $logsCopied += $copiedLogs.Count
-        } 
+        }
     }
     
         $evTime = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
